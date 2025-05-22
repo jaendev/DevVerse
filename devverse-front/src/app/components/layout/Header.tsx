@@ -59,119 +59,123 @@ export default function Header() {
         }`}
     >
       <Container>
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center space-x-2"
-          >
-            <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DV</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">DevVerse</span>
-          </Link>
+        <div className={`${localStorage.getItem('token') ? 'hidden' : ''}`}>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 font-medium transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-          </nav>
 
-          {/* Desktop Right Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={handleThemeToggle}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle dark mode"
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="flex items-center space-x-2"
             >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              ) : (
-                <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              )}
-            </button>
-            <Button
-              variant="outline"
-              onClick={() => router.push('/login')}
-            >
-              Log in
-            </Button>
-            <Button
-              onClick={() => router.push('/register')}
-            >
-              Sign up
-            </Button>
-          </div>
+              <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">DV</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">DevVerse</span>
+            </Link>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              ) : (
-                <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              )}
-            </button>
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-md text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700">
-            <nav className="flex flex-col space-y-4 mt-4">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-10">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 font-medium transition-colors"
                 >
                   {link.name}
                 </a>
               ))}
+            </nav>
+
+            {/* Desktop Right Actions */}
+            <div className="hidden md:flex items-center space-x-4">
+              <button
+                onClick={handleThemeToggle}
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  router.push('/login');
-                  setIsMenuOpen(false);
-                }}
-                fullWidth
+                onClick={() => router.push('/login')}
               >
                 Log in
               </Button>
               <Button
-                onClick={() => {
-                  router.push('/register');
-                  setIsMenuOpen(false);
-                }}
-                fullWidth
+                onClick={() => router.push('/register')}
               >
                 Sign up
               </Button>
-            </nav>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex items-center space-x-2 md:hidden">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-md text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
           </div>
-        )}
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700">
+              <nav className="flex flex-col space-y-4 mt-4">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                ))}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    router.push('/login');
+                    setIsMenuOpen(false);
+                  }}
+                  fullWidth
+                >
+                  Log in
+                </Button>
+                <Button
+                  onClick={() => {
+                    router.push('/register');
+                    setIsMenuOpen(false);
+                  }}
+                  fullWidth
+                >
+                  Sign up
+                </Button>
+              </nav>
+            </div>
+          )}
+        </div>
       </Container>
     </header>
   );

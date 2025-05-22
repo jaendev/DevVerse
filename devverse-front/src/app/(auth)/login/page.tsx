@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Card from '@/app/components/ui/Card';
-import {TextField} from '@/app/components/ui/TextField';
+import { TextField } from '@/app/components/ui/TextField';
 import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
@@ -17,7 +17,7 @@ export default function LoginPage() {
     password: '',
     rememberMe: false
   });
-  
+
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export default function LoginPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     // Clear error when field is modified
     if (errors[name as keyof LoginFormData]) {
       setErrors(prev => ({
@@ -39,30 +39,32 @@ export default function LoginPage() {
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof LoginFormData, string>> = {};
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
-    
+
+    console.log(JSON.stringify(formData));
+
     try {
-      const response = await fetch('http://localhost:5000/api/Auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +72,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-        }),
+        })
       });
 
       const data = await response.json();
@@ -105,7 +107,7 @@ export default function LoginPage() {
               Log in to your developer account
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <TextField
               label="Email"
@@ -119,7 +121,7 @@ export default function LoginPage() {
               placeholder="your.email@example.com"
               required
             />
-            
+
             <TextField
               label="Password"
               name="password"
@@ -131,7 +133,7 @@ export default function LoginPage() {
               fullWidth
               required
             />
-            
+
             <div className="flex justify-between items-center">
               <Checkbox
                 name="rememberMe"
@@ -139,8 +141,8 @@ export default function LoginPage() {
                 onChange={handleChange}
                 label="Remember me"
               />
-              
-              <button 
+
+              <button
                 type="button"
                 onClick={() => router.push('/forgot-password')}
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors"
@@ -148,12 +150,12 @@ export default function LoginPage() {
                 Forgot password?
               </button>
             </div>
-            
+
             <Button type="submit" fullWidth isLoading={isLoading}>
               Log In
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don&apos;t have an account?{' '}
@@ -168,8 +170,8 @@ export default function LoginPage() {
           </div>
         </Card>
       </Container>
-      
-      <button 
+
+      <button
         onClick={() => router.push('/')}
         className="absolute top-4 left-4 p-2 flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
       >

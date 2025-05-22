@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Menu, X, Moon, Sun, Github } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import Container from '@/app/components/ui/Container';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -20,9 +20,9 @@ export default function Header() {
     console.log('=== THEME TOGGLE DEBUG ===');
     console.log('Current theme before toggle:', theme);
     console.log('HTML classList before:', document.documentElement.classList.toString());
-    
+
     toggleTheme();
-    
+
     // Verificar después del toggle
     setTimeout(() => {
       console.log('Theme after toggle:', theme);
@@ -42,8 +42,8 @@ export default function Header() {
   }, []);
 
   // Si necesitas una condición de retorno temprano, hazlo después de los hooks
-  if(!showHeader) return null;
-  
+  if (!showHeader) return null;
+
 
   const navLinks = [
     { name: 'Features', href: '#features' },
@@ -52,21 +52,22 @@ export default function Header() {
   ];
 
   return (
-    <header 
-      className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ?'py-2 bg-background/90 backdrop-blur-md shadow-sm' 
-          : 'py-4 bg-transparent'
-      }`}
+    <header
+      className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled
+        ? 'py-2 bg-background/90 backdrop-blur-md shadow-sm'
+        : 'py-4 bg-transparent'
+        }`}
     >
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center space-x-2"
           >
-            <Github className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+            <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">DV</span>
+            </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">DevVerse</span>
           </Link>
 
@@ -96,13 +97,13 @@ export default function Header() {
                 <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
               )}
             </button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => router.push('/login')}
             >
               Log in
             </Button>
-            <Button 
+            <Button
               onClick={() => router.push('/register')}
             >
               Sign up
@@ -149,21 +150,21 @@ export default function Header() {
                   {link.name}
                 </a>
               ))}
-              <Button 
-                variant="outline" 
-                onClick={() => { 
-                  router.push('/login'); 
-                  setIsMenuOpen(false); 
-                }} 
+              <Button
+                variant="outline"
+                onClick={() => {
+                  router.push('/login');
+                  setIsMenuOpen(false);
+                }}
                 fullWidth
               >
                 Log in
               </Button>
-              <Button 
-                onClick={() => { 
-                  router.push('/register'); 
-                  setIsMenuOpen(false); 
-                }} 
+              <Button
+                onClick={() => {
+                  router.push('/register');
+                  setIsMenuOpen(false);
+                }}
                 fullWidth
               >
                 Sign up

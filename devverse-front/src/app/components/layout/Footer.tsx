@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
   const showFooter = useShowFooter();
 
   if (!showFooter) return null;
-  
+
   const footerLinks = [
     {
       title: 'Platform',
@@ -54,7 +54,9 @@ const Footer: React.FC = () => {
           {/* Logo and description */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <Github className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">DV</span>
+              </div>
               <span className="text-lg font-bold text-gray-900 dark:text-white">DevConnect</span>
             </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
@@ -62,7 +64,7 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
-                <a 
+                <a
                   key={social.label}
                   href={social.href}
                   className="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
@@ -73,7 +75,7 @@ const Footer: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Footer links */}
           {footerLinks.map((section) => (
             <div key={section.title} className="col-span-1">
@@ -83,7 +85,7 @@ const Footer: React.FC = () => {
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.name}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-sm text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
                     >
@@ -95,7 +97,7 @@ const Footer: React.FC = () => {
             </div>
           ))}
         </div>
-        
+
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
             &copy; {year} DevConnect. All rights reserved.

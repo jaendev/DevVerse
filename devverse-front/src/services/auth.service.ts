@@ -6,6 +6,7 @@ import {
   RegisterRequest,
   UserProfile
 } from '@/app/types/api';
+// import { User } from '@/app/types';
 
 export class AuthService {
   // Login
@@ -86,14 +87,22 @@ export class AuthService {
   }
 
   // Verify token (call to backend)
-  static async verifyToken(): Promise<boolean> {
-    try {
-      await apiClient.get('/api/auth/verify');
-      return true;
-    } catch (error) {
-      console.error('Error verifying token:', error);
-      this.logout(); // Eliminar token inválido
-      return false;
-    }
-  }
+  // static async verifyToken(): Promise<{ isValid: boolean; user?: UserProfile }> {
+  //   try {
+  //     const response = await apiClient.get<{
+  //       success: boolean;
+  //       userId: string;
+  //       email: string;
+  //     }>('/api/auth/verify');
+
+  //     return {
+  //       isValid: true,
+  //       user: response
+  //     };
+  //   } catch (error) {
+  //     console.error('Error verifying token:', error);
+  //     this.logout(); // Eliminar token inválido
+  //     return { isValid: false };
+  //   }
+  // }
 }

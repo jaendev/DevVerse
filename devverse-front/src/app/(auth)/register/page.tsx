@@ -9,11 +9,12 @@ import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
 import type { RegisterFormData } from '@/app/types';
-import { AuthService } from '@/services';
-import { getErrorMessage } from '@/lib/utils';
+import { useAuthStore } from '@/stores';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register, isLoading, error, clearError } = useAuthStore();
+
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
@@ -22,8 +23,8 @@ export default function RegisterPage() {
     acceptTerms: false
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  // Separate validation erros and lauth errors
+  const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -33,11 +34,16 @@ export default function RegisterPage() {
     }));
 
     // Clear error when field is modified
-    if (errors[name as keyof RegisterFormData]) {
-      setErrors(prev => ({
+    if (validationErrors[name as keyof RegisterFormData]) {
+      setValidationErrors(prev => ({
         ...prev,
         [name]: ''
       }));
+    }
+
+    // Clear error auth when user begin type
+    if (error) {
+      clearError()
     }
   };
 
@@ -68,7 +74,7 @@ export default function RegisterPage() {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
 
-    setErrors(newErrors);
+    setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -77,23 +83,17 @@ export default function RegisterPage() {
 
     if (!validate()) return;
 
-    setIsLoading(true);
-
     try {
-      await AuthService.register({
+      await register({
         username: formData.name,
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword
+        confirmPassword: formData.confirmPassword,
       });
 
-      router.push('/dashboard');
+      router.push('/dashboard')
     } catch (error) {
-      setErrors({
-        email: getErrorMessage(error)
-      });
-    } finally {
-      setIsLoading(false);
+      console.error('Registration failed:', error);
     }
   };
 
@@ -116,7 +116,7 @@ export default function RegisterPage() {
               autoComplete="name"
               value={formData.name}
               onChange={handleChange}
-              error={errors.name}
+              error={validationErrors.name}
               fullWidth
               placeholder="John Doe"
               required
@@ -129,7 +129,7 @@ export default function RegisterPage() {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              error={errors.email}
+              error={validationErrors.email}
               fullWidth
               placeholder="your.email@example.com"
               required
@@ -142,7 +142,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
-              error={errors.password}
+              error={validationErrors.password}
               helperText="Must be at least 8 characters long"
               fullWidth
               required
@@ -155,7 +155,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              error={errors.confirmPassword}
+              error={validationErrors.confirmPassword}
               fullWidth
               required
             />
@@ -165,7 +165,7 @@ export default function RegisterPage() {
               checked={formData.acceptTerms}
               onChange={handleChange}
               label="I agree to the Terms of Service and Privacy Policy"
-              error={errors.acceptTerms}
+              error={validationErrors.acceptTerms}
               className="mt-4"
             />
 

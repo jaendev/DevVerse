@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore, useUserStore } from '@/stores';
 import {
   User,
   Code,
@@ -14,21 +15,10 @@ import {
   Github,
   ExternalLink,
   Settings,
-  LogOut
 } from 'lucide-react';
 import Container from '@/app/components/ui/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
-
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  username?: string;
-  bio?: string;
-  avatar?: string;
-  joinedAt: string;
-}
 
 interface ProjectStats {
   totalProjects: number;
@@ -49,7 +39,14 @@ interface RecentProject {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const { user, isAuthenticated } = useAuthStore();
+  const {
+    dashBoardStats,
+    projects,
+    isLoading,
+    loadDashBoardStats,
+    loadProjects
+  } = useUserStore();
   const [stats, setStats] = useState<ProjectStats>({
     totalProjects: 0,
     totalStars: 0,
@@ -57,31 +54,21 @@ export default function DashboardPage() {
     activeProjects: 0
   });
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar autenticación
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-
-    if (!token || !userData) {
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
 
-    try {
-      setUser(JSON.parse(userData));
-      // Aquí cargarías los datos reales del usuario desde tu API
-      loadDashboardData();
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      router.push('/login');
-    }
-  }, [router]);
+    // loadDashBoardStats();
+    loadDashboardData();
+    loadProjects();
+  }, [isAuthenticated, router, loadDashBoardStats, loadProjects]);
 
   const loadDashboardData = async () => {
     try {
-      // Simular carga de datos - reemplaza con llamadas reales a tu API
+      // Simulate loading data - replace with real API calls
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       setStats({
@@ -122,15 +109,7 @@ export default function DashboardPage() {
       ]);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
   };
 
   const getLanguageColor = (language: string) => {
@@ -157,7 +136,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen pt-16 bg-gray-50 dark:bg-gray-900">
       <Container className="py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
@@ -173,10 +152,6 @@ export default function DashboardPage() {
             <Button variant="outline" onClick={() => router.push('/settings')}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
-            </Button>
-            <Button variant="ghost" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Log out
             </Button>
           </div>
         </div>

@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using DevVerse.API.Services.Interfaces;
 using DevVerse.API.Models.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DevVerse.API.Controllers;
 
@@ -38,4 +40,26 @@ public class AuthController: ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpPost("logout")]
+    public async Task<ActionResult<AuthResponseDto>> Logout()
+    {
+        return Ok();
+    }
+    
+    [HttpGet("verify")]
+    [Authorize]
+    public async Task<ActionResult<AuthResponseDto>> Verify()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userEmail = User.FindFirst(ClaimTypes.Email).Value;
+        return Ok(new
+        {
+            success = true,
+            message = "User logged in successfully.",
+            user = userId,
+            email = userEmail
+        });
+    }
+    
 }

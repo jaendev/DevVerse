@@ -1,10 +1,10 @@
-// src/app/layout.tsx
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/contexts/ThemeContext'
+import { StoreProvider } from '@/app/components/providers/StoreProvider'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>        
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <script
           dangerouslySetInnerHTML={{
@@ -35,11 +35,13 @@ export default function RootLayout({
             `,
           }}
         />
-        <ThemeProvider>
-          <Header/>
-          {children}
-          <Footer/>
-        </ThemeProvider>
+        <StoreProvider>
+          <ThemeProvider>
+            <Header />
+            {children}
+            <Footer />
+          </ThemeProvider>
+        </StoreProvider>
       </body>
     </html>
   )

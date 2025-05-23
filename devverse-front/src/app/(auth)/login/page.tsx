@@ -9,19 +9,19 @@ import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
 import type { LoginFormData } from '@/app/types';
-import { AuthService } from '@/services';
-import { getErrorMessage } from '@/lib/utils';
+import { useAuthStore } from '@/stores';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isLoading, error, clearError } = useAuthStore();
+
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
     rememberMe: false
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -31,11 +31,14 @@ export default function LoginPage() {
     }));
 
     // Clear error when field is modified
-    if (errors[name as keyof LoginFormData]) {
-      setErrors(prev => ({
+    if (validationErrors[name as keyof LoginFormData]) {
+      setValidationErrors(prev => ({
         ...prev,
         [name]: ''
       }));
+    }
+    if (error) {
+      clearError();
     }
   };
 
@@ -52,7 +55,7 @@ export default function LoginPage() {
       newErrors.password = 'Password is required';
     }
 
-    setErrors(newErrors);
+    setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -61,21 +64,15 @@ export default function LoginPage() {
 
     if (!validate()) return;
 
-    setIsLoading(true);
-
     try {
-      await AuthService.login({
+      await login({
         email: formData.email,
         password: formData.password,
-      });
+      })
 
-      router.push('/dashboard');
+      router.push('/dashboard')
     } catch (error) {
-      setErrors({
-        email: getErrorMessage(error)
-      });
-    } finally {
-      setIsLoading(false);
+      console.error('Login failed: ', error)
     }
   };
 
@@ -98,7 +95,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              error={errors.email}
+              error={validationErrors.email}
               fullWidth
               placeholder="your.email@example.com"
               required
@@ -111,7 +108,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              error={errors.password}
+              error={validationErrors.password}
               fullWidth
               required
             />

@@ -66,6 +66,7 @@ export class AuthService {
     try {
       return JSON.parse(userString);
     } catch (error) {
+      console.error('Error parsing user data:', error);
       return null;
     }
   }
@@ -90,6 +91,7 @@ export class AuthService {
       await apiClient.get('/api/auth/verify');
       return true;
     } catch (error) {
+      console.error('Error verifying token:', error);
       this.logout(); // Eliminar token inválido
       return false;
     }

@@ -48,9 +48,10 @@ builder.Services.AddCors(options =>
         if (builder.Environment.IsDevelopment())
         {
             // In development
-            policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+            policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
         else
         {
@@ -77,6 +78,26 @@ var app = builder.Build();
 
 //app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+
+app.Use(async (context, next) =>
+{
+    // Log request info
+    Console.WriteLine($"=== REQUEST ===");
+    Console.WriteLine($"Method: {context.Request.Method}");
+    Console.WriteLine($"Path: {context.Request.Path}");
+    Console.WriteLine($"Origin: {context.Request.Headers["Origin"]}");
+    Console.WriteLine($"Content-Type: {context.Request.Headers["Content-Type"]}");
+    
+    await next();
+    
+    // Log response info
+    Console.WriteLine($"=== RESPONSE ===");
+    Console.WriteLine($"Status: {context.Response.StatusCode}");
+    Console.WriteLine($"CORS Headers: {context.Response.Headers["Access-Control-Allow-Origin"]}");
+    Console.WriteLine("================");
+});
+
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

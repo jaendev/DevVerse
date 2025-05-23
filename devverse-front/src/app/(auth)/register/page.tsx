@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Card from '@/app/components/ui/Card';
-import {TextField} from '@/app/components/ui/TextField';
+import { TextField } from '@/app/components/ui/TextField';
 import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
@@ -19,7 +19,7 @@ export default function RegisterPage() {
     confirmPassword: '',
     acceptTerms: false
   });
-  
+
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +29,7 @@ export default function RegisterPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     // Clear error when field is modified
     if (errors[name as keyof RegisterFormData]) {
       setErrors(prev => ({
@@ -41,44 +41,44 @@ export default function RegisterPage() {
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegisterFormData, string>> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/Auth/register', {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function RegisterPage() {
               Join the developer community today
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <TextField
               label="Full Name"
@@ -137,7 +137,7 @@ export default function RegisterPage() {
               placeholder="John Doe"
               required
             />
-            
+
             <TextField
               label="Email"
               name="email"
@@ -150,7 +150,7 @@ export default function RegisterPage() {
               placeholder="your.email@example.com"
               required
             />
-            
+
             <TextField
               label="Password"
               name="password"
@@ -163,7 +163,7 @@ export default function RegisterPage() {
               fullWidth
               required
             />
-            
+
             <TextField
               label="Confirm Password"
               name="confirmPassword"
@@ -175,7 +175,7 @@ export default function RegisterPage() {
               fullWidth
               required
             />
-            
+
             <Checkbox
               name="acceptTerms"
               checked={formData.acceptTerms}
@@ -184,17 +184,17 @@ export default function RegisterPage() {
               error={errors.acceptTerms}
               className="mt-4"
             />
-            
-            <Button 
-              type="submit" 
-              fullWidth 
+
+            <Button
+              type="submit"
+              fullWidth
               isLoading={isLoading}
               className="mt-6"
             >
               Create Account
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
@@ -209,8 +209,8 @@ export default function RegisterPage() {
           </div>
         </Card>
       </Container>
-      
-      <button 
+
+      <button
         onClick={() => router.push('/')}
         className="absolute top-4 left-4 p-2 flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
       >

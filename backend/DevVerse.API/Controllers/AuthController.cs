@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using DevVerse.API.Services.Interfaces;
 using DevVerse.API.Models.DTOs.Auth;
 
-namespace DevVerse.API.Data;
+namespace DevVerse.API.Controllers;
 
 [ApiController]
 [Route("api/auth/")]

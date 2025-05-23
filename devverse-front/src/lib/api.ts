@@ -37,9 +37,9 @@ class ApiClient {
   // Pivate method to handle responses
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      // Manejar errores HTTP
+      // Hanlde errors HTTP
       if (response.status === 401) {
-        // Token expirado o inválido
+        // Expirated or invalid token
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');

@@ -9,6 +9,8 @@ import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
 import type { RegisterFormData } from '@/app/types';
+import { AuthService } from '@/services';
+import { getErrorMessage } from '@/lib/utils';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -78,35 +80,17 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.name,
-          email: formData.email,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword
-        }),
+      await AuthService.register({
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        // Guardar el token y la información del usuario
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        router.push('/dashboard');
-      } else {
-        setErrors({
-          email: data.message || 'Registration failed'
-        });
-      }
+      router.push('/dashboard');
     } catch (error) {
-      console.error('Registration error:', error);
       setErrors({
-        email: 'An error occurred during registration'
+        email: getErrorMessage(error)
       });
     } finally {
       setIsLoading(false);

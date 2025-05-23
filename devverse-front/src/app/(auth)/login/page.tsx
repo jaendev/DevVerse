@@ -9,6 +9,8 @@ import Button from '@/app/components/ui/Button';
 import Checkbox from '@/app/components/ui/Checkbox';
 import Container from '@/app/components/ui/Container';
 import type { LoginFormData } from '@/app/types';
+import { AuthService } from '@/services';
+import { getErrorMessage } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -62,33 +64,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        })
+      await AuthService.login({
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        // Guardar el token y la información del usuario
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        router.push('/dashboard');
-      } else {
-        setErrors({
-          email: data.message || 'Invalid credentials'
-        });
-      }
+      router.push('/dashboard');
     } catch (error) {
-      console.error('Login error:', error);
       setErrors({
-        email: 'An error occurred during login'
+        email: getErrorMessage(error)
       });
     } finally {
       setIsLoading(false);

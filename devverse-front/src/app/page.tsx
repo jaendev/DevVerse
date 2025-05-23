@@ -5,9 +5,12 @@ import { Code, Users, Share2, Zap, CheckCircle } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import Container from '@/app/components/ui/Container';
+import { useAuthStore } from '@/stores';
 
 export default function Home() {
   const router = useRouter();
+
+  const { isAuthenticated } = useAuthStore();
 
   const onLogin = () => router.push('/login');
   const onRegister = () => router.push('/register');
@@ -56,10 +59,10 @@ export default function Home() {
                 <span className="text-indigo-600 dark:text-indigo-400">Developer</span>
               </h1>
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-                A minimalist platform where developers can showcase their expertise, 
+                A minimalist platform where developers can showcase their expertise,
                 build meaningful connections, and share valuable content with the community.
               </p>
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className={`${isAuthenticated ? 'hidden' : 'flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4'}`}>
                 <Button size="lg" onClick={onRegister}>
                   Get Started
                 </Button>
@@ -98,9 +101,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card 
-                key={index} 
-                variant="elevated" 
+              <Card
+                key={index}
+                variant="elevated"
                 className="transform transition-all hover:translate-y-[-4px] hover:shadow-lg"
               >
                 <div className="p-2 w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
@@ -130,7 +133,7 @@ export default function Home() {
                 We&apos;ve designed a platform specifically for developers with the features you actually need,
                 without the clutter and noise of generic social networks.
               </p>
-              
+
               <ul className="space-y-4">
                 {benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start">
@@ -140,11 +143,11 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Button className="mt-8" onClick={onRegister}>
+              <Button className={`${isAuthenticated ? 'hidden' : 'mt-8'}`} onClick={onRegister}>
                 Join Now
               </Button>
             </div>
-            
+
             <div className="lg:w-1/2 lg:pl-12">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-6 h-40 transform transition-transform hover:scale-105"></div>
@@ -158,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-indigo-600 dark:bg-indigo-900">
+      <section className={`${isAuthenticated ? 'hidden' : 'py-16 bg-indigo-600 dark:bg-indigo-900'}`} >
         <Container>
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">
@@ -168,16 +171,16 @@ export default function Home() {
               Create your developer profile today and start connecting with other professionals in your field.
             </p>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button 
-                variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-indigo-600" 
+              <Button
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-indigo-600"
                 size="lg"
                 onClick={onRegister}
               >
                 Sign Up Now
               </Button>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 size="lg"
                 onClick={onLogin}
               >

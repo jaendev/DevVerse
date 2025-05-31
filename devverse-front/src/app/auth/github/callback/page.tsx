@@ -39,7 +39,7 @@ export default function GitHubCallbackPage() {
         // Redirect to dashboard after short delay
         setTimeout(() => {
           router.push('/dashboard');
-        }, 2000);
+        }, 3000);
 
       } catch (error) {
         console.error('GitHub callback error:', error);

@@ -4,10 +4,10 @@ namespace DevVerse.API.Models.DTOs.Auth;
 
 public class LoginRequestDto
 {
-    [Required(ErrorMessage = "El email es requerido")]
-    [EmailAddress(ErrorMessage = "El formato del email no es válido")]
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Email format is invalid")]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La contraseña es requerida")]
+    [Required(ErrorMessage = "Password is required")]
     public string Password { get; set; } = string.Empty;
 }

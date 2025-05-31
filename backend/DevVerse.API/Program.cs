@@ -40,6 +40,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+var gitHubSettings = builder.Configuration.GetSection("GitHub").Get<GitHubSettings>();
+builder.Services.Configure<GitHubSettings>(builder.Configuration.GetSection("GitHub"));
+
 // CORS config
 builder.Services.AddCors(options =>
 {
@@ -65,7 +68,10 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

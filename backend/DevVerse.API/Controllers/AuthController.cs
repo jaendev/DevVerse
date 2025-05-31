@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using DevVerse.API.Services.Interfaces;
 using DevVerse.API.Models.DTOs.Auth;
+using DevVerse.API.Models.DTOs.User.GitHub;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DevVerse.API.Controllers;
@@ -11,10 +12,12 @@ namespace DevVerse.API.Controllers;
 public class AuthController: ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IGitHubService _gitHubService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IGitHubService gitHubService)
     {
         _authService = authService;
+        _gitHubService = gitHubService;
     }
 
     [HttpPost("register")]
@@ -60,6 +63,37 @@ public class AuthController: ControllerBase
             user = userId,
             email = userEmail
         });
+    }
+
+    [HttpGet("github/auth")]
+    public ActionResult GetGitHubAuthUrl([FromQuery] string? returnUrl = null)
+    {
+        var state = Guid.NewGuid().ToString();
+        // TODO: Store state in cache/session for validation
+        var authUrl = _gitHubService.GetAuthorizationUrl(state);
+        return Ok(new { authUrl, state });
+    }
+
+    [HttpPost("github/callback")]
+    public async Task<ActionResult<AuthResponseDto>> GitHubCallback([FromBody] GitHubAuthDto request)
+    {
+        if (string.IsNullOrEmpty(request.Code))
+        {
+            return BadRequest( new AuthResponseDto
+            {
+                Success = false,
+                Message = "Code is required."
+            });
+        }
+        
+        var response = await _gitHubService.AuthenticateWithGitHubAsync(request.Code, request.State);
+
+        if (!response.Success)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
     
 }

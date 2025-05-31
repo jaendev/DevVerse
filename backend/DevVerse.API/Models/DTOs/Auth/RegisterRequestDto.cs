@@ -4,20 +4,20 @@ namespace DevVerse.API.Models.DTOs.Auth;
 
 public class RegisterRequestDto
 {
-    [Required(ErrorMessage = "El email es requerido")]
-    [EmailAddress(ErrorMessage = "El formato del email no es válido")]
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Email format is incorrect")]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El nombre de usuario es requerido")]
+    [Required(ErrorMessage = "User name is requiered")]
     [StringLength(50, MinimumLength = 3, 
-        ErrorMessage = "El nombre de usuario debe tener entre 3 y 50 caracteres")]
+        ErrorMessage = "The user name must be between 3 and 50 characters")]
     public string Username { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La contraseña es requerida")]
+    [Required(ErrorMessage = "Password is required")]
     [StringLength(100, MinimumLength = 6, 
-        ErrorMessage = "La contraseña debe tener entre 6 y 100 caracteres")]
+        ErrorMessage = "Password must ben between 6 and 100 characters")]
     public string Password { get; set; } = string.Empty;
 
-    [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
+    [Compare("Password", ErrorMessage = "Passwords do not match")]
     public string ConfirmPassword { get; set; } = string.Empty;
 }

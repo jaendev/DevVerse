@@ -63,3 +63,30 @@ export interface Project {
   isPublic: boolean;
   repositoryUrl?: string;
 }
+
+// GitHub Auth type
+export interface GitHubAuthRequest {
+  code: string;
+  state: string;
+}
+
+export interface GitHubAuthUrlResponse {
+  authUrl: string;
+  state: string;
+}
+
+// Update AuthResponse to handle GitHub users
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  UserProfile: {
+    id: string;
+    name: string;
+    email: string;
+    username?: string;
+    profileImageUrl?: string;
+    githubId?: string;
+    githubProfile?: string;
+  };
+  message?: string;
+}

@@ -13,12 +13,14 @@ interface AuthState {
   error: string | null;
   // Actions
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGitHub: (code: string, state: string) => Promise<void>;
   register: (credentials: RegisterRequest) => Promise<void>;
   logout: () => void;
   // Utilities
   clearError: () => void;
   setUser: (user: UserProfile) => void;
   checkAuth: () => Promise<boolean>;
+  getGitHubAuthUrl: () => Promise<string>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -119,6 +121,44 @@ export const useAuthStore = create<AuthState>()(
         // Si tenemos datos, asumir que está autenticado
         set({ isAuthenticated: true });
         return true;
+      },
+
+      getGitHubAuthUrl: async () => {
+        try {
+          const response = await AuthService.getGitHubAuthUrl();
+          return response.authUrl;
+        } catch (error) {
+          console.error('Error fetching GitHub auth URL:', error);
+          throw error;
+        }
+      },
+
+      loginWithGitHub: async (code: string, state: string) => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await AuthService.authenticateWithGitHub(code, state);
+
+          if (response.success) {
+            set({
+              user: { ...response.user, joinedAt: new Date().toISOString() },
+              token: response.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+              joinedAt: new Date().toISOString(),
+            });
+          } else {
+            throw new Error(response.message || 'GitHub authentication failed');
+          }
+
+        } catch (error) {
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'GitHub authentication failed',
+            isAuthenticated: false,
+          });
+        }
       },
     }),
     {

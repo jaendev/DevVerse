@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using DevVerse.API.Services.Interfaces;
 using DevVerse.API.Models.DTOs.Auth;
-using DevVerse.API.Models.DTOs.User.GitHub;
+using DevVerse.API.Models.DTOs.GitHub;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DevVerse.API.Controllers;
@@ -65,7 +65,7 @@ public class AuthController: ControllerBase
         });
     }
 
-    [HttpGet("github/auth")]
+    [HttpGet("github")]
     public ActionResult GetGitHubAuthUrl([FromQuery] string? returnUrl = null)
     {
         var state = Guid.NewGuid().ToString();
@@ -82,7 +82,7 @@ public class AuthController: ControllerBase
             return BadRequest( new AuthResponseDto
             {
                 Success = false,
-                Message = "Code is required."
+                Message = "Authorization code is required."
             });
         }
         

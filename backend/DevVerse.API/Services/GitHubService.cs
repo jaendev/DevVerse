@@ -5,7 +5,8 @@ using DevVerse.API.Models.Config;
 using DevVerse.API.Models.Domain;
 using DevVerse.API.Models.DTOs.Auth;
 using DevVerse.API.Models.DTOs.User;
-using DevVerse.API.Models.DTOs.User.GitHub;
+using DevVerse.API.Models.DTOs.GitHub;
+using Microsoft.Extensions.Options;
 using DevVerse.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,14 +22,14 @@ public class GitHubService : IGitHubService
 
     public GitHubService(
         ApplicationDbContext context,
-        GitHubSettings gitHubSettings,
+        IOptions<GitHubSettings> gitHubSettings,
         IAuthService authService,
         IMapper mapper,
         HttpClient httpClient
     )
     {
         _context = context;
-        _gitHubSettings = gitHubSettings;
+        _gitHubSettings = gitHubSettings.Value;
         _authService = authService;
         _mapper = mapper;
         _httpClient = httpClient;
@@ -107,7 +108,7 @@ public class GitHubService : IGitHubService
                     Bio = gitHubUser.Bio,
                     Location = gitHubUser.Location,
                     EmailVerified = !string.IsNullOrEmpty(gitHubUser.Email),
-                    PasswordHash = string.Empty, // GitHub users don't have password
+                    PasswordHash = string.Empty,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -121,7 +122,7 @@ public class GitHubService : IGitHubService
             return new AuthResponseDto
             {
                 Success = true,
-                Message = "User logged in successfully.",
+                Message = "GitHub authentication successful.",
                 Token = token,
                 User = _mapper.Map<UserDto>(user)
             };
@@ -153,7 +154,7 @@ public class GitHubService : IGitHubService
             var json = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseUpper
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             };
 
             return JsonSerializer.Deserialize<GitHubUserDto>(json, options);
@@ -192,7 +193,7 @@ public class GitHubService : IGitHubService
             var responseJson = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseUpper
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             };
             
             return JsonSerializer.Deserialize<GitHubTokenResponse>(responseJson, options);
@@ -210,7 +211,7 @@ public class GitHubService : IGitHubService
 
         while (await _context.Users.AnyAsync(u => u.Username == username))
         {
-            username = $"{baseUsername}{counter++}";
+            username = $"{baseUsername.ToLower()}{counter}";
             counter++;
         }
         

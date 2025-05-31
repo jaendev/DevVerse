@@ -4,7 +4,9 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
-  UserProfile
+  UserProfile,
+  GitHubAuthRequest,
+  GitHubAuthUrlResponse
 } from '@/app/types/api';
 // import { User } from '@/app/types';
 
@@ -80,12 +82,6 @@ export class AuthService {
     return !!token;
   }
 
-  // Get token
-  static getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-  }
-
   // Verify token (call to backend)
   // static async verifyToken(): Promise<{ isValid: boolean; user?: UserProfile }> {
   //   try {
@@ -105,4 +101,65 @@ export class AuthService {
   //     return { isValid: false };
   //   }
   // }
+
+  // Get token
+  static getToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('token');
+  }
+
+  // Get GitHub auth URL
+  static async getGitHubAuthUrl(): Promise<GitHubAuthUrlResponse> {
+    try {
+      const response = await apiClient.get<GitHubAuthUrlResponse>(
+        '/api/auth/github',
+        false // No auth header needed
+      );
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('github_oauth_state', response.state);
+      }
+      return response;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to get GitHub auth URL');
+    }
+  }
+
+  // Authtenticate with GitHub callback
+  static async authenticateWithGitHub(code: string, state: string): Promise<AuthResponse> {
+    try {
+      // Verify state matches
+      if (typeof window !== 'undefined') {
+        const storedState = sessionStorage.getItem('github_oauth_state')
+        if (storedState !== state) {
+          throw new Error('Invalid state parameter');
+        }
+        sessionStorage.removeItem('github_oauth_state');
+      }
+
+      const response = await apiClient.post<AuthResponse>(
+        '/api/auth/github/callback',
+        { code, state } as GitHubAuthRequest,
+        false // No auth header needed
+      )
+
+      if (response.success && response.token) {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }
+
+      return response; // Return the AuthResponse objec
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'GitHub authentication failed');
+    }
+  }
+
+  static redirectToGitHubAuth() {
+    this.getGitHubAuthUrl().then((response) => {
+      window.location.href = response.authUrl;
+    }).catch((error) => {
+      console.error('Error redirecting to GitHub auth:', error);
+    });
+  }
+
 }

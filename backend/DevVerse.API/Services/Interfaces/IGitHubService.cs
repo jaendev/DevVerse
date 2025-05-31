@@ -1,5 +1,5 @@
 using DevVerse.API.Models.DTOs.Auth;
-using DevVerse.API.Models.DTOs.User.GitHub;
+using DevVerse.API.Models.DTOs.GitHub;
 
 namespace DevVerse.API.Services.Interfaces;
 

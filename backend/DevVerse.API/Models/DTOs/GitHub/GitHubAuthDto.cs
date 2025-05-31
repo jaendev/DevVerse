@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace DevVerse.API.Models.DTOs.User.GitHub;
+namespace DevVerse.API.Models.DTOs.GitHub;
 
 public class GitHubAuthDto
 {

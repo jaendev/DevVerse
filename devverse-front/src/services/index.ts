@@ -9,5 +9,8 @@ export type {
   RegisterRequest,
   UserProfile,
   DashboardStats,
-  Project
+  Project,
+  GitHubAuthUrlResponse,
+  GitHubAuthRequest,
+  ApiResponse,
 } from '@/app/types/api';

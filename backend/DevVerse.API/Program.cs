@@ -3,6 +3,7 @@ using DevVerse.API.Data.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
 using DevVerse.API.Models.Config;
 using DevVerse.API.Services.Interfaces;
 using DevVerse.API.Services;
@@ -11,7 +12,11 @@ using DevVerse.API.Models.Mapping;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>  
+     {  
+         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;  
+     });
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -22,6 +27,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+
+//var gitHubSettings = builder.Configuration.GetSection("GitHub").Get<GitHubSettings>();
+builder.Services.Configure<GitHubSettings>(builder.Configuration.GetSection("GitHub"));
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -39,9 +47,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtSettings.Key))
         };
     });
-
-var gitHubSettings = builder.Configuration.GetSection("GitHub").Get<GitHubSettings>();
-builder.Services.Configure<GitHubSettings>(builder.Configuration.GetSection("GitHub"));
 
 // CORS config
 builder.Services.AddCors(options =>
@@ -68,10 +73,10 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
-builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

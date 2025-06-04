@@ -79,14 +79,25 @@ public class AuthController: ControllerBase
     {
         if (string.IsNullOrEmpty(request.Code))
         {
-            return BadRequest( new AuthResponseDto
+            return BadRequest(new AuthResponseDto
             {
                 Success = false,
                 Message = "Authorization code is required."
             });
         }
         
-        var response = await _gitHubService.AuthenticateWithGitHubAsync(request.Code, request.State);
+        // If the "code" looks like an access token (NextAuth did the exchange)
+        AuthResponseDto response;
+        if (request.Code.StartsWith("gho_") || request.Code.Length > 50)
+        {
+            // In the access token case, use directly
+            response = await _gitHubService.AuthenticateWithAccessTokenAsync(request.Code);
+        }
+        else
+        {
+            // Is a code, make a change
+            response = await _gitHubService.AuthenticateWithGitHubAsync(request.Code, request.State);
+        }
 
         if (!response.Success)
         {

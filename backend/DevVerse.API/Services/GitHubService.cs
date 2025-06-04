@@ -204,6 +204,82 @@ public class GitHubService : IGitHubService
         }
     }
 
+    public async Task<AuthResponseDto> AuthenticateWithAccessTokenAsync(string accessToken)
+    {
+        try
+        {
+            // 1. Get user information directly with the access token
+            var gitHubUser = await GetGitHubUserAsync(accessToken);
+            if (gitHubUser == null)
+            {
+                return new AuthResponseDto
+                {
+                    Success = false,
+                    Message = "Failed to get GitHub user information."
+                };
+            }
+
+            // 2. Check if user already exists
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.GithubId == gitHubUser.Id.ToString());
+
+            User user;
+            if (existingUser != null)
+            {
+                // Update existing user info 
+                existingUser.Name = gitHubUser.Name;
+                existingUser.ProfileImageUrl = gitHubUser.AvatarUrl;
+                existingUser.Bio = gitHubUser.Bio;
+                existingUser.Location = gitHubUser.Location;
+                existingUser.GithubProfile = gitHubUser.HtmlUrl;
+                existingUser.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                user = existingUser;
+            }
+            else
+            {
+                // Create new user from GitHub data
+                user = new User
+                {
+                    Email = gitHubUser.Email ?? $"{gitHubUser.Login}@github.local",
+                    Username = await GenerateUniqueUsernameAsync(gitHubUser.Login),
+                    Name = gitHubUser.Name ?? gitHubUser.Login,
+                    GithubId = gitHubUser.Id.ToString(),
+                    GithubProfile = gitHubUser.HtmlUrl,
+                    ProfileImageUrl = gitHubUser.AvatarUrl,
+                    Bio = gitHubUser.Bio,
+                    Location = gitHubUser.Location,
+                    EmailVerified = !string.IsNullOrEmpty(gitHubUser.Email),
+                    PasswordHash = string.Empty,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+            }
+            
+            // 3. Generate JWT token
+            var token = _authService.GenerateJwtToken(user);
+
+            return new AuthResponseDto
+            {
+                Success = true,
+                Message = "GitHub authentication successful.",
+                Token = token,
+                User = _mapper.Map<UserDto>(user)
+            };
+        }
+        catch (Exception ex)
+        {
+            return new AuthResponseDto
+            {
+                Success = false,
+                Message = $"GitHub authentication failed: {ex.Message}"
+            };
+        }
+    }
+
     private async Task<string> GenerateUniqueUsernameAsync(string baseUsername)
     {
         var username = baseUsername.ToLower();

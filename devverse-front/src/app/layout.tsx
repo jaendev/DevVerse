@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { StoreProvider } from '@/app/components/providers/StoreProvider'
+import SessionProvider from '@/app/components/providers/SessionProvider'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import { ThemeProvider } from '@/contexts/ThemeContext'
@@ -35,13 +36,15 @@ export default function RootLayout({
             `,
           }}
         />
-        <StoreProvider>
-          <ThemeProvider>
-            <Header />
-            {children}
-            <Footer />
-          </ThemeProvider>
-        </StoreProvider>
+        <SessionProvider>
+          <StoreProvider>
+            <ThemeProvider>
+              <Header />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          </StoreProvider>
+        </SessionProvider>
       </body>
     </html>
   )

@@ -1,21 +1,22 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react'; // ← CAMBIO: de @/auth a next-auth/react
 import Link from 'next/link';
 import { Menu, X, Moon, Sun, LogOut, User } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import Container from '@/app/components/ui/Container';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAuthStore } from '@/stores';
 import { useShowHeader } from '@/hooks/useShowHeader';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const router = useRouter();
   const showHeader = useShowHeader();
   const { theme, toggleTheme } = useTheme();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -23,9 +24,8 @@ export default function Header() {
     toggleTheme();
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' }); // ← CAMBIO: usar callbackUrl
   };
 
   useEffect(() => {
@@ -37,7 +37,6 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // If not showing header, don't render anything
   if (!showHeader) return null;
 
   const navLinks = [
@@ -81,11 +80,11 @@ export default function Header() {
             </nav>
           )}
 
-          {/* User info - Only show when is authenticated */}
+          {/* User info - Only show when authenticated */}
           {isAuthenticated && user && (
             <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-gray-700 dark:text-gray-300">
-                Welcome, {user.username}!
+                Welcome, {user.username || user.name}!
               </span>
             </div>
           )}
@@ -160,8 +159,7 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-          >
+          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
             <nav className="flex flex-col space-y-4 mt-4">
               {!isAuthenticated && (
                 <>

@@ -5,12 +5,11 @@ import { Code, Users, Share2, Zap, CheckCircle } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 import Container from '@/app/components/ui/Container';
-import { useAuthStore } from '@/stores';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
+  const { data: session } = useSession();
   const router = useRouter();
-
-  const { isAuthenticated } = useAuthStore();
 
   const onLogin = () => router.push('/login');
   const onRegister = () => router.push('/register');
@@ -62,7 +61,7 @@ export default function Home() {
                 A minimalist platform where developers can showcase their expertise,
                 build meaningful connections, and share valuable content with the community.
               </p>
-              <div className={`${isAuthenticated ? 'hidden' : 'flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4'}`}>
+              <div className={`${session?.accessToken ? 'hidden' : 'flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4'}`}>
                 <Button size="lg" onClick={onRegister}>
                   Get Started
                 </Button>
@@ -143,7 +142,7 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Button className={`${isAuthenticated ? 'hidden' : 'mt-8'}`} onClick={onRegister}>
+              <Button className={`${session?.accessToken ? 'hidden' : 'mt-8'}`} onClick={onRegister}>
                 Join Now
               </Button>
             </div>
@@ -161,7 +160,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className={`${isAuthenticated ? 'hidden' : 'py-16 bg-indigo-600 dark:bg-indigo-900'}`} >
+      <section className={`${session?.accessToken ? 'hidden' : 'py-16 bg-indigo-600 dark:bg-indigo-900'}`} >
         <Container>
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">

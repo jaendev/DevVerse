@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Container from '@/app/components/ui/Container';
 import { useAuthStore, useUserStore } from '@/stores';
 import {
   User,
@@ -16,7 +17,6 @@ import {
   ExternalLink,
   Settings,
 } from 'lucide-react';
-import Container from '@/app/components/ui/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 

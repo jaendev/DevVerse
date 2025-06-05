@@ -3,8 +3,8 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Github } from 'lucide-react';
-import Card from '@/app/components/ui/Card';
-import Container from '@/app/components/ui/Container';
+import Card from '../components/ui/Card';
+import Container from '../components/ui/Container';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();

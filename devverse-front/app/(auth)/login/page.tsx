@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react'; // ← CAMBIO: de @/auth a next-auth/react
+import { signIn } from 'next-auth/react'; // ← CAMBIO: de @/src/auth a next-auth/react
 import { ArrowLeft } from 'lucide-react';
-import Card from '@/app/components/ui/Card';
-import { TextField } from '@/app/components/ui/TextField';
-import Button from '@/app/components/ui/Button';
-import Checkbox from '@/app/components/ui/Checkbox';
-import Container from '@/app/components/ui/Container';
+import Card from '../../components/ui/Card';
+import { TextField } from '../../components/ui/TextField';
+import Button from '../../components/ui/Button';
+import Checkbox from '../../components/ui/Checkbox';
+import Container from '../../components/ui/Container';
 
 interface LoginFormData {
   email: string;

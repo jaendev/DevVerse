@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Github } from 'lucide-react';
-import Button from '@/app/components/ui/Button';
-import { useAuthStore } from '@/stores';
+import Button from '../ui/Button';
+import { useAuthStore } from '@/src/stores';
 
 interface GitHubButtonProps {
   text?: string;

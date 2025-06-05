@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useAuthStore, useThemeStore } from "@/stores"
+import { useAuthStore, useThemeStore } from "@/src/stores"
 
 interface StoreProviderProps {
   children: React.ReactNode

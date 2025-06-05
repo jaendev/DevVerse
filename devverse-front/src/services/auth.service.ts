@@ -1,5 +1,5 @@
 
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/src/lib/api';
 import {
   AuthResponse,
   LoginRequest,
@@ -7,8 +7,8 @@ import {
   UserProfile,
   GitHubAuthRequest,
   GitHubAuthUrlResponse
-} from '@/app/types/api';
-// import { User } from '@/app/types';
+} from '../../app/types/api';
+// import { User } from '@/src/app/types';
 
 export class AuthService {
   // Login

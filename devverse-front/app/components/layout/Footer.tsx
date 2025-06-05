@@ -3,7 +3,7 @@
 import React from 'react';
 import { Github, Twitter, Linkedin } from 'lucide-react';
 import Container from '../ui/Container';
-import { useShowFooter } from '@/hooks/useShowFooter';
+import { useShowFooter } from '@/src/hooks/useShowFooter';
 
 const Footer: React.FC = () => {
   const year = new Date().getFullYear();

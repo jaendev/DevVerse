@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { Code, Users, Share2, Zap, CheckCircle } from 'lucide-react';
-import Button from '@/app/components/ui/Button';
-import Card from '@/app/components/ui/Card';
-import Container from '@/app/components/ui/Container';
+import Button from './components/ui/Button';
+import Card from './components/ui/Card';
+import Container from './components/ui/Container';
 import { useSession } from 'next-auth/react';
 
 export default function Home() {

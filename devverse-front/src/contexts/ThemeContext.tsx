@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import { useThemeStore } from '@/stores';
+import { useThemeStore } from '@/src/stores';
 
 type Theme = 'light' | 'dark';
 

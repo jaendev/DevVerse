@@ -13,4 +13,4 @@ export type {
   GitHubAuthUrlResponse,
   GitHubAuthRequest,
   ApiResponse,
-} from '@/app/types/api';
+} from '../../app/types/api';

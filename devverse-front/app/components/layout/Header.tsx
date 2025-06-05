@@ -3,14 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react'; // ← CAMBIO: de @/auth a next-auth/react
+import { signOut } from 'next-auth/react'; // ← CAMBIO: de @/src/auth a next-auth/react
 import Link from 'next/link';
 import { Menu, X, Moon, Sun, LogOut, User } from 'lucide-react';
-import Button from '@/app/components/ui/Button';
-import Container from '@/app/components/ui/Container';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useShowHeader } from '@/hooks/useShowHeader';
-import { useAuth } from '@/hooks/useAuth';
+import Button from '../ui/Button';
+import Container from '../ui/Container';
+import { useTheme } from '@/src/contexts/ThemeContext';
+import { useShowHeader } from '@/src/hooks/useShowHeader';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Header() {
   const router = useRouter();

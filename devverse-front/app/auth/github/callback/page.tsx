@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import Container from '@/app/components/ui/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
-import { useAuthStore } from '@/stores';
+import Container from '../../../components/ui/Container';
+import Card from '../../../components/ui/Card';
+import Button from '../../../components/ui/Button';
+import { useAuthStore } from '@/src/stores';
 
 export default function GitHubCallbackPage() {
   const router = useRouter();

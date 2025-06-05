@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import Card from '@/app/components/ui/Card';
-import { TextField } from '@/app/components/ui/TextField';
-import Button from '@/app/components/ui/Button';
-import Checkbox from '@/app/components/ui/Checkbox';
-import Container from '@/app/components/ui/Container';
-import type { RegisterFormData } from '@/app/types';
-import { useAuthStore } from '@/stores';
-import GitHubButton from '@/app/components/auth/GitHubButton';
+import Card from '../../components/ui/Card';
+import { TextField } from '../../components/ui/TextField';
+import Button from '../../components/ui/Button';
+import Checkbox from '../../components/ui/Checkbox';
+import Container from '../../components/ui/Container';
+import type { RegisterFormData } from '../../types';
+import { useAuthStore } from '@/src/stores';
+import GitHubButton from '../../components/auth/GitHubButton';
 
 export default function RegisterPage() {
   const router = useRouter();

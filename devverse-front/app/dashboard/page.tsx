@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Container from '@/app/components/ui/Container';
-import { useAuthStore, useUserStore } from '@/stores';
+import Container from '../components/ui/Container';
+import { useSession } from 'next-auth/react';
+import { useUserStore } from '@/src/stores';
 import {
   User,
   Code,
@@ -17,8 +18,8 @@ import {
   ExternalLink,
   Settings,
 } from 'lucide-react';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 interface ProjectStats {
   totalProjects: number;
@@ -39,7 +40,7 @@ interface RecentProject {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { data: session, status } = useSession();
   const {
     dashBoardStats,
     projects,
@@ -56,7 +57,7 @@ export default function DashboardPage() {
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
@@ -64,7 +65,7 @@ export default function DashboardPage() {
     // loadDashBoardStats();
     loadDashboardData();
     loadProjects();
-  }, [isAuthenticated, router, loadDashBoardStats, loadProjects]);
+  }, [status, router, loadDashBoardStats, loadProjects]);
 
   const loadDashboardData = async () => {
     try {
@@ -142,7 +143,7 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome back, {user?.name?.split(' ')[0] || 'Developer'}!
+              Welcome back, {session?.user?.name?.split(' ')[0] || 'Developer'}!
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               Here&apos;s what&apos;s happening with your projects today.
@@ -271,8 +272,8 @@ export default function DashboardPage() {
                 <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <User className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{user?.email}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{session?.user?.name}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{session?.user?.email}</p>
                 <div className="mt-4">
                   <Button variant="outline" size="sm" fullWidth>
                     Edit Profile

@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { auth } from '@/src/auth'
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth
@@ -14,6 +14,9 @@ export default auth((req) => {
     isProtectedPage,
     auth: req.auth
   });
+
+  console.log(isAuthPage, isAuthPage);
+
 
   // Redirect to dashboard if logged in and trying to access auth pages
   if (isLoggedIn && isAuthPage) {

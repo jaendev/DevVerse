@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { UserService } from '@/services';
-import type { DashboardStats, Project } from '@/services';
+import { UserService } from '@/src/services';
+import type { DashboardStats, Project } from '@/src/services';
 
 interface UserState {
   // State

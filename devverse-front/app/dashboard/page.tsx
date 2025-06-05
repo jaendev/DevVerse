@@ -1,19 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Container from '../components/ui/Container';
+import { GitHubRepo } from '@/app/types/github';
+import { useGitHubAPI } from '@/src/hooks/useGitHubAPI';
 import { useSession } from 'next-auth/react';
-import { useUserStore } from '@/src/stores';
 import {
   User,
   Code,
   GitBranch,
   Star,
-  Users,
-  Calendar,
   TrendingUp,
-  Plus,
   Github,
   ExternalLink,
   Settings,
@@ -21,40 +20,14 @@ import {
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 
-interface ProjectStats {
-  totalProjects: number;
-  totalStars: number;
-  totalCommits: number;
-  activeProjects: number;
-}
-
-interface RecentProject {
-  id: string;
-  name: string;
-  description: string;
-  language: string;
-  stars: number;
-  lastUpdated: string;
-  isPublic: boolean;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const {
-    dashBoardStats,
-    projects,
-    isLoading,
-    loadDashBoardStats,
-    loadProjects
-  } = useUserStore();
-  const [stats, setStats] = useState<ProjectStats>({
-    totalProjects: 0,
-    totalStars: 0,
-    totalCommits: 0,
-    activeProjects: 0
-  });
-  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+
+  const { error, getRecentActivity, getRepositories, getUserStats, hasToken, loading } = useGitHubAPI();
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -62,55 +35,36 @@ export default function DashboardPage() {
       return;
     }
 
-    // loadDashBoardStats();
-    loadDashboardData();
-    loadProjects();
-  }, [status, router, loadDashBoardStats, loadProjects]);
-
-  const loadDashboardData = async () => {
-    try {
-      // Simulate loading data - replace with real API calls
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setStats({
-        totalProjects: 12,
-        totalStars: 284,
-        totalCommits: 1847,
-        activeProjects: 5
-      });
-
-      setRecentProjects([
-        {
-          id: '1',
-          name: 'DevVerse Frontend',
-          description: 'Modern React application for developer social network',
-          language: 'TypeScript',
-          stars: 45,
-          lastUpdated: '2 hours ago',
-          isPublic: true
-        },
-        {
-          id: '2',
-          name: 'API Gateway',
-          description: 'Microservices API gateway with authentication',
-          language: 'C#',
-          stars: 23,
-          lastUpdated: '1 day ago',
-          isPublic: false
-        },
-        {
-          id: '3',
-          name: 'React Components Library',
-          description: 'Reusable UI components for React applications',
-          language: 'JavaScript',
-          stars: 156,
-          lastUpdated: '3 days ago',
-          isPublic: true
-        }
-      ]);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
+    if (hasToken) {
+      loadGitHubData();
     }
+  }, [status, router, hasToken]);
+
+  console.log(stats);
+
+  const loadGitHubData = async () => {
+    try {
+      const reposData = await getRepositories(10);
+      setRepos(reposData);
+
+      const statsData = await getUserStats();
+      setStats(statsData);
+
+      const activityData = await getRecentActivity();
+      setActivity(activityData);
+    } catch (err) {
+      console.error('Error loading GitHub data:', err);
+    }
+  };
+
+  const maskEmail = (email: string) => {
+    if (!email) return '';
+
+    const [user, domain] = email.split('@');
+    if (!user || !domain) return email;
+
+    const maskedUser = user.substring(0, 2) + '*'.repeat(Math.max(user.length - 2, 3));
+    return maskedUser + '@' + domain;
   };
 
   const getLanguageColor = (language: string) => {
@@ -125,7 +79,60 @@ export default function DashboardPage() {
     return colors[language] || 'bg-gray-500';
   };
 
-  if (isLoading) {
+  const getRepoStatusBadge = (repo: GitHubRepo) => {
+    const badges = [];
+
+    // Badge de privacidad
+    if (repo.private) {
+      badges.push(
+        <span key="private" className="py-1 text-xs text-gray-900 dark:text-white">
+          Private
+        </span>
+      );
+    } else {
+      badges.push(
+        <span key="public" className="py-1 text-xs text-gray-900 dark:text-white">
+          Public
+        </span>
+      );
+    }
+
+    // Badge de fork
+    if (repo.fork) {
+      badges.push(
+        <span key="fork" className="py-1 text-xs text-gray-900 dark:text-white">
+          Fork
+        </span>
+      );
+    }
+
+    // Badge de archivado
+    if (repo.archived) {
+      badges.push(
+        <span key="archived" className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+          📦 Archived
+        </span>
+      );
+    }
+
+    return badges;
+  };
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-600">Error: {error}</p>
+        <button
+          onClick={loadGitHubData}
+          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Try
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -134,6 +141,7 @@ export default function DashboardPage() {
         </div>
       </div>
     );
+
   }
 
   return (
@@ -158,55 +166,57 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card variant="elevated">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-                <Code className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card variant="elevated">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-indigo-100 dark:bg-indigo-900/30">
+                  <Code className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projects</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.total_repos}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projects</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalProjects}</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card variant="elevated">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                <Star className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            <Card variant="elevated">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                  <Star className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Stars</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.total_stars}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Stars</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalStars}</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card variant="elevated">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                <GitBranch className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <Card variant="elevated">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
+                  <GitBranch className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commits</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.total_commits}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commits</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalCommits}</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card variant="elevated">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30">
-                <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            <Card variant="elevated">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30">
+                  <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Projects</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{activity.length}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Projects</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeProjects}</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Projects */}
@@ -214,14 +224,14 @@ export default function DashboardPage() {
             <Card variant="elevated">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Projects</h2>
-                <Button variant="outline" size="sm">
+                {/* <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" />
                   New Project
-                </Button>
+                </Button> */}
               </div>
 
               <div className="space-y-4">
-                {recentProjects.map((project) => (
+                {repos.slice(0, 5).map((project) => (
                   <div
                     key={project.id}
                     className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
@@ -233,26 +243,33 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-gray-900 dark:text-white">{project.name}</h3>
-                          {!project.isPublic && (
-                            <span className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                              Private
-                            </span>
-                          )}
+                          <a
+                            className="font-medium text-gray-900 dark:text-white"
+                            href={project.html_url}
+                            target="_blank">
+                            {project.name}
+                          </a>
+                          {getRepoStatusBadge(project)}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{project.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{project.description || 'No description'}</p>
                         <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-500">
                           <span>{project.language}</span>
                           <span className="flex items-center">
                             <Star className="h-3 w-3 mr-1" />
-                            {project.stars}
+                            {project.stargazers_count}
                           </span>
-                          <span>Updated {project.lastUpdated}</span>
+                          <span>Updated {project.updated_at}</span>
+                          <span>{(project.size / 1024).toFixed(1)} MB</span>
                         </div>
                       </div>
                     </div>
                     <Button variant="ghost" size="sm">
-                      <ExternalLink className="h-4 w-4" />
+                      <a
+                        target='_blank'
+                        href={project.html_url}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
                     </Button>
                   </div>
                 ))}
@@ -264,7 +281,7 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Profile & Quick Actions */}
+          {/* Profile & Languages */}
           <div className="space-y-6">
             {/* Profile Card */}
             <Card variant="elevated">
@@ -273,7 +290,7 @@ export default function DashboardPage() {
                   <User className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{session?.user?.name}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{session?.user?.email}</p>
+                <p className="text-gray-600 dark:text-gray-400">{maskEmail(session?.user?.email || '')}</p>
                 <div className="mt-4">
                   <Button variant="outline" size="sm" fullWidth>
                     Edit Profile
@@ -282,55 +299,57 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            {/* Quick Actions */}
+            {/* Languages more used */}
             <Card variant="elevated">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <Button variant="outline" size="sm" fullWidth>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Project
-                </Button>
-                <Button variant="outline" size="sm" fullWidth>
-                  <Users className="h-4 w-4 mr-2" />
-                  Find Developers
-                </Button>
-                <Button variant="outline" size="sm" fullWidth>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule Meeting
-                </Button>
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Most used languages</h3>
+              {stats?.languages && (
+                <>
+                  <div className="space-y-2">
+                    {Object.entries(stats.languages)
+                      .sort(([, a], [, b]) => (b as number) - (a as number))
+                      .slice(0, 5)
+                      .map(([language, count]) => (
+                        <div key={language} className="flex justify-between items-center dark:text-white">
+                          <span className="font-medium">{language}</span>
+                          <span className="text-gray-600 dark:text-white">{count} repos</span>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              )}
             </Card>
 
             {/* Activity Feed */}
             <Card variant="elevated">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-white">Pushed to <span className="font-medium">main</span></p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">2 hours ago</p>
+              <div className="h-48 md:h-64 overflow-y-auto space-y-3 pr-5">
+                {activity && activity.length > 0 ? (
+                  activity.slice(0, 20).map((event, index) => (
+                    <div key={event.id || index} className="flex items-center space-x-3 text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                      <span className="text-gray-600 dark:text-white">
+                        {event.type === 'PushEvent' && `📤 Push ${event.repo?.name || 'Unknown repo'}`}
+                        {event.type === 'CreateEvent' && `🆕 Create ${event.payload?.ref_type || 'branch'} en ${event.repo?.name || 'Unknown repo'}`}
+                        {event.type === 'WatchEvent' && `⭐ Starred ${event.repo?.name || 'Unknown repo'}`}
+                        {event.type === 'ForkEvent' && `🍴 Fork ${event.repo?.name || 'Unknown repo'}`}
+                        {!['PushEvent', 'CreateEvent', 'WatchEvent', 'ForkEvent'].includes(event.type) &&
+                          `${event.type} en ${event.repo?.name || 'Unknown repo'}`}
+                      </span>
+                      <span className="text-gray-400 ml-auto flex-shrink-0">
+                        {event.created_at ? new Date(event.created_at).toLocaleDateString() : 'Unknown date'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    No recent activity found
                   </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-white">Created new project</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">1 day ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-white">Received 5 new stars</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">2 days ago</p>
-                  </div>
-                </div>
+                )}
               </div>
             </Card>
           </div>
-        </div>
-      </Container>
-    </div>
+        </div >
+      </Container >
+    </div >
   );
 }

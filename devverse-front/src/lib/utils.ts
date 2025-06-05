@@ -1,12 +1,12 @@
 
 import { type ClassValue, clsx } from 'clsx';
 
-// Función para combinar clases CSS (útil con Tailwind)
+// Function to combine CSS classes (useful with Tailwind)
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-// Función para formatear fechas
+// Function to fromat dates
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',

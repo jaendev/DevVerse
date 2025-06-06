@@ -1,6 +1,6 @@
 
-import { apiClient } from '@/lib/api';
-import { UserProfile, DashboardStats, Project } from '@/app/types/api';
+import { apiClient } from '@/src/lib/api';
+import { UserProfile, DashboardStats, Project } from '../../app/types/api';
 
 export class UserService {
   // Get user profile

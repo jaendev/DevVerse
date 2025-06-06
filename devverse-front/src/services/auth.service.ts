@@ -1,5 +1,5 @@
 
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/src/lib/api';
 import {
   AuthResponse,
   LoginRequest,
@@ -7,8 +7,7 @@ import {
   UserProfile,
   GitHubAuthRequest,
   GitHubAuthUrlResponse
-} from '@/app/types/api';
-// import { User } from '@/app/types';
+} from '../../app/types/api';
 
 export class AuthService {
   // Login
@@ -17,10 +16,10 @@ export class AuthService {
       const response = await apiClient.post<AuthResponse>(
         '/api/auth/login',
         credentials,
-        false // No incluir auth header para login
+        false // No include auth header for login
       );
 
-      // Guardar token y usuario en localStorage
+      // Save token and user in localStorage
       if (response.success && response.token) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));

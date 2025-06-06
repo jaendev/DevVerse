@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AuthService } from '@/services';
-import type { UserProfile, LoginRequest, RegisterRequest } from '@/services';
+import { AuthService } from '@/src/services';
+import type { UserProfile, LoginRequest, RegisterRequest } from '@/src/services';
 
 interface AuthState {
   // Estate

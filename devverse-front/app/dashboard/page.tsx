@@ -7,6 +7,7 @@ import Container from '../components/ui/Container';
 import { GitHubRepo } from '@/app/types/github';
 import { useGitHubAPI } from '@/src/hooks/useGitHubAPI';
 import { useSession } from 'next-auth/react';
+import StatsSkeleton from '@/app/components/ui/StatsSkeleton';
 import {
   User,
   Code,
@@ -19,7 +20,6 @@ import {
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { stat } from 'fs';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,8 +40,6 @@ export default function DashboardPage() {
       loadGitHubData();
     }
   }, [status, router, hasToken]);
-
-  console.log(stats);
 
   const loadGitHubData = async () => {
     try {
@@ -179,7 +177,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        {stats && (
+        {!stats ? (
+          <StatsSkeleton
+          />
+        ) : stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card variant="elevated">
               <div className="flex items-center">

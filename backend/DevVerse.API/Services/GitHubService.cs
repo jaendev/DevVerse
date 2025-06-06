@@ -226,6 +226,7 @@ public class GitHubService : IGitHubService
             User user;
             if (existingUser != null)
             {
+                Console.WriteLine($"User already exists: {existingUser.Username}");
                 // Update existing user info 
                 existingUser.Name = gitHubUser.Name;
                 existingUser.ProfileImageUrl = gitHubUser.AvatarUrl;
@@ -239,6 +240,7 @@ public class GitHubService : IGitHubService
             }
             else
             {
+                Console.WriteLine($"New user: {gitHubUser.Login}");
                 // Create new user from GitHub data
                 user = new User
                 {
@@ -257,6 +259,8 @@ public class GitHubService : IGitHubService
                 };
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
+                
+                Console.WriteLine($"User created with intern ID: {user.Id}");
             }
             
             // 3. Generate JWT token

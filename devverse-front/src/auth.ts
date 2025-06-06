@@ -77,6 +77,9 @@ export const {
           console.log('🔥 Profile data:', profile);
           console.log('🔥 Account data:', account);
 
+          // Use the GitHub ID as the unique identifier
+          const githubId = (profile as any)?.id || account.providerAccountId;
+
           // Prepare data for the backend - the backend expects only code and state
           const backendPayload = {
             code: account.access_token, // NextAuth handle interchange code
@@ -119,7 +122,7 @@ export const {
 
           // Save the basic data in the token
           token.accessToken = account.access_token;
-          token.id = user.id;
+          token.id = githubId;
           token.username = (profile as GitHubProfile)?.login;
           token.githubId = user.id;
           token.githubProfile = (profile as GitHubProfile)?.html_url;
@@ -127,6 +130,7 @@ export const {
       }
       return token;
     },
+
     async session({ session, token }) {
       if (token && session.user) {
         // NextAuth/GitHub data

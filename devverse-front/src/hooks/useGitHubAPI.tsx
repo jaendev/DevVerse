@@ -110,7 +110,6 @@ export function useGitHubAPI() {
           }
 
           stats.total_commits += repoCommits;
-          console.log(`📊 ${repo.name}: ${repoCommits} commits`);
 
           // Litle pause between repos for avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 100));

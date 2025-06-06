@@ -67,6 +67,60 @@ export function useGitHubAPI() {
         }
       })
 
+      for (const repo of repos) {
+        try {
+          // Get user commits in this current repo
+          const commits = await makeGitHubRequest(
+            `/repos/${repo.full_name}/commits?author=${user.login}&per_page=100`
+          );
+
+          let repoCommits = commits.length;
+
+          // If there are exactly 100 commits, there may be more (pagination)
+          if (commits.length === 100) {
+            let page = 2;
+            let hasMore = true;
+
+            // Get more pages (max 5 pages for repo to avoid rate limiting)
+            while (hasMore && page <= 5) {
+              try {
+                const moreCommits = await makeGitHubRequest(
+                  `/repos/${repo.full_name}/commits?author=${user.login}&per_page=100&page=${page}`
+                );
+
+                if (moreCommits.length === 0) {
+                  hasMore = false;
+                } else {
+                  repoCommits += moreCommits.length;
+                  page++;
+
+                  if (moreCommits.length < 100) {
+                    hasMore = false;
+                  }
+                }
+
+                // Lite sleep for avoid rate limit
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+              } catch (pageError) {
+                console.warn(`Error getting page ${page} for ${repo.full_name}:`, pageError);
+                hasMore = false;
+              }
+            }
+          }
+
+          stats.total_commits += repoCommits;
+          console.log(`📊 ${repo.name}: ${repoCommits} commits`);
+
+          // Litle pause between repos for avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+        } catch (repoError) {
+          console.warn(`⚠️ No se pudieron obtener commits de ${repo.full_name}:`, repoError);
+          // Continue with the next repository without failing
+        }
+      }
+
       return stats
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error fetching user stats')

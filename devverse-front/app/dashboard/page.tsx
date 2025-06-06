@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import { stat } from 'fs';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -52,10 +53,12 @@ export default function DashboardPage() {
 
       const activityData = await getRecentActivity();
       setActivity(activityData);
+
     } catch (err) {
       console.error('Error loading GitHub data:', err);
     }
   };
+
 
   const maskEmail = (email: string) => {
     if (!email) return '';
@@ -66,6 +69,16 @@ export default function DashboardPage() {
     const maskedUser = user.substring(0, 2) + '*'.repeat(Math.max(user.length - 2, 3));
     return maskedUser + '@' + domain;
   };
+
+  const parseDate = (dateString: string) => {
+    // If user is from Europe, return date in DD/MM/YYYY format
+    const dateSplitbyT = dateString.split('T')[0];
+    const dateParsed = dateSplitbyT.split('-').reverse().join('/');
+
+    // TODO: If user is from USA, return date in MM/DD/YYYY format
+
+    return dateParsed
+  }
 
   const getLanguageColor = (language: string) => {
     const colors: Record<string, string> = {
@@ -82,7 +95,7 @@ export default function DashboardPage() {
   const getRepoStatusBadge = (repo: GitHubRepo) => {
     const badges = [];
 
-    // Badge de privacidad
+    // Privacity badge
     if (repo.private) {
       badges.push(
         <span key="private" className="py-1 text-xs text-gray-900 dark:text-white">
@@ -106,7 +119,7 @@ export default function DashboardPage() {
       );
     }
 
-    // Badge de archivado
+    // Badge archived
     if (repo.archived) {
       badges.push(
         <span key="archived" className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
@@ -250,6 +263,7 @@ export default function DashboardPage() {
                             {project.name}
                           </a>
                           {getRepoStatusBadge(project)}
+                          <span className='text-xs text-gray-500 dark:text-gray-200'>{project.default_branch}</span>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{project.description || 'No description'}</p>
                         <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-500">
@@ -258,7 +272,7 @@ export default function DashboardPage() {
                             <Star className="h-3 w-3 mr-1" />
                             {project.stargazers_count}
                           </span>
-                          <span>Updated {project.updated_at}</span>
+                          <span>Updated {parseDate(project.updated_at)}</span>
                           <span>{(project.size / 1024).toFixed(1)} MB</span>
                         </div>
                       </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useSession } from 'next-auth/react';
@@ -5,14 +6,39 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Github } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Container from '../components/ui/Container';
+import { useGitHubAPI } from '@/src/hooks/useGitHubAPI';
+import { useEffect, useState } from 'react';
+import { MapPinIcon } from 'lucide-react';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
-
-  console.log(session);
-
-
+  const { getUserProfile, hasToken } = useGitHubAPI();
   const router = useRouter();
+
+  const [profile, setProfile] = useState<any>(null);
+
+  console.log(profile);
+
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+      return;
+    }
+
+    if (hasToken) {
+      loadGitHubData();
+    }
+  }, [status, router, hasToken,]);
+
+  const loadGitHubData = async () => {
+    try {
+      const profileData = await getUserProfile()
+      setProfile(profileData)
+    } catch (err) {
+      console.error('Error loading GitHub data:', err);
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -59,9 +85,17 @@ export default function ProfilePage() {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                   {session.user?.name || 'Unknown User'}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  @{session.user?.username || 'username'}
-                </p>
+                <div className='flex flex-row items-center space-x-4'>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    @{session.user?.username || 'username'}
+                  </p>
+                  <div className='flex items-center space-x-1'>
+                    <MapPinIcon className='h-4 w-4 text-gray-500' />
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {profile?.location}
+                    </p>
+                  </div>
+                </div>
 
                 {session.user?.githubProfile && (
                   <a
@@ -74,6 +108,11 @@ export default function ProfilePage() {
                     View GitHub Profile
                   </a>
                 )}
+
+                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  {profile?.bio}
+                </p>
+
               </div>
             </div>
           </Card>

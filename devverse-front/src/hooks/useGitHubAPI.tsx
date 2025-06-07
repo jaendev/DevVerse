@@ -156,6 +156,33 @@ export function useGitHubAPI() {
     }
   }, [makeGitHubRequest, session?.user?.username])
 
+  const getUserProfile = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const userProfile = await makeGitHubRequest('/user');
+
+      return {
+        id: userProfile.id,
+        login: userProfile.login,
+        name: userProfile.name,
+        bio: userProfile.bio,
+        location: userProfile.location,
+        public_repos: userProfile.public_repos,
+        followers: userProfile.followers,
+        following: userProfile.following,
+        created_at: userProfile.created_at,
+      };
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error fetching user profile');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [makeGitHubRequest]);
+
   return {
     loading,
     error,
@@ -163,6 +190,7 @@ export function useGitHubAPI() {
     getUserStats,
     getRepoCommits,
     getRecentActivity,
+    getUserProfile,
     hasToken: !!session?.accessToken
   };
 }
